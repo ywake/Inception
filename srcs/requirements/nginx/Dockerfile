@@ -1,24 +1,20 @@
-FROM alpine:3.14
+FROM alpine:3.15
 
-RUN	apk update &&\
-	apk add nginx openssl &&\
-	adduser -D -g 'www' www &&\
+RUN	apk --no-cache --update add nginx openssl
+
+RUN	adduser -D -g 'www' www &&\
 	mkdir /www &&\
 	chown -R www:www /var/lib/nginx &&\
-	chown -R www:www /www
-
-COPY --chown=www:www nginx.conf /etc/nginx/nginx.conf
-COPY --chown=www:www default.conf /etc/nginx/http.d/default.conf
-COPY --chown=www:www index.html /www/index.html
-
-RUN	mkdir /etc/nginx/ssl && cd /etc/nginx/ssl &&\
+	chown -R www:www /www &&\
+	# ssl
+	mkdir /etc/nginx/ssl && cd /etc/nginx/ssl &&\
 	openssl genrsa -out server.key 2048 && \
 	openssl req -new -key server.key -out server.csr -subj '/C=JP/ST=Tokyo/L=Tokyo/O=ywake/OU=Web/CN=localhost' &&\
-	openssl x509 -in server.csr -days 3650 -req -signkey server.key > server.crt
-
-RUN	mkdir /etc/ssl/nginx &&\
+	openssl x509 -in server.csr -days 3650 -req -signkey server.key > server.crt &&\
+	mkdir /etc/ssl/nginx &&\
 	openssl dhparam -out /etc/ssl/nginx/dh2048.pem 2048
 
-EXPOSE 80
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf /etc/nginx/http.d/default.conf
 
 CMD [ "nginx", "-g", "daemon off;" ]
