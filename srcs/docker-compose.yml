@@ -7,4 +7,29 @@ services:
     ports:
       - 443:443
     volumes:
-      - ./requirements/nginx/index.html:/www/index.html
+      - ./requirements/src:/var/www/html
+    depends_on:
+      - wordpress
+    networks:
+      - server
+
+  wordpress:
+    image: wordpress
+    container_name: wordpress
+    build: requirements/wordpress
+    volumes:
+      - ./requirements/src:/var/www/html
+    # - server-volume:/var/www/html
+    networks:
+      - server
+
+volumes:
+  server-volume:
+    driver_opts:
+      type: none
+      device: ./requirements/wordpress/src
+      o: bind
+
+networks:
+  server:
+    driver: bridge

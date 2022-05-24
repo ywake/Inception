@@ -4,7 +4,7 @@ COMPOSE		:= docker-compose -f $(YAML)
 all: #$(WORDPRESS)
 	$(COMPOSE) down
 	$(COMPOSE) build $(SERV)
-	$(COMPOSE) up
+	$(COMPOSE) up -d
 
 clean:
 	$(COMPOSE) down --rmi all --volumes
