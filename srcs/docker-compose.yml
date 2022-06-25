@@ -12,6 +12,7 @@ services:
       - wordpress
     networks:
       - server
+    restart: always
 
   wordpress:
     image: wordpress
@@ -22,6 +23,19 @@ services:
     # - server-volume:/var/www/html
     networks:
       - server
+    restart: always
+
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    build: requirements/mariadb
+    ports:
+      - 3306:3306
+    env_file:
+      - .env
+    volumes:
+      - ./data:/var/lib/mysql
+    # restart: always
 
 volumes:
   server-volume:
