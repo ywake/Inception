@@ -7,7 +7,8 @@ services:
     ports:
       - 443:443
     volumes:
-      - ./requirements/src:/var/www/html
+      # - wordpress-volume:/var/www/html
+      - ./data/wordpress:/var/www/html
     depends_on:
       - wordpress
     networks:
@@ -19,31 +20,51 @@ services:
     container_name: wordpress
     build: requirements/wordpress
     volumes:
-      - ./requirements/src:/var/www/html
-    # - server-volume:/var/www/html
+      # - wordpress-volume:/var/www/html
+      - ./data/wordpress:/var/www/html
+    env_file:
+      - .env
+    depends_on:
+      mariadb:
+        condition: service_healthy
     networks:
       - server
+      - database
     restart: always
 
   mariadb:
     image: mariadb
     container_name: mariadb
     build: requirements/mariadb
-    ports:
-      - 3306:3306
     env_file:
       - .env
     volumes:
-      - ./data:/var/lib/mysql
-    # restart: always
+      # - mariadb-volume:/var/lib/mysql
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - database
+    restart: always
+    healthcheck:
+      test: mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e use ${MYSQL_DATABASE}
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 3s
 
 volumes:
-  server-volume:
+  mariadb-volume:
     driver_opts:
       type: none
-      device: ./requirements/wordpress/src
+      device: ./data/mysql
+      o: bind
+  wordpress-volume:
+    driver_opts:
+      type: none
+      device: ./data/wordpress
       o: bind
 
 networks:
   server:
+    driver: bridge
+  database:
     driver: bridge

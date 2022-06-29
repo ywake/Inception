@@ -12,13 +12,16 @@ if [ ! -d /var/lib/mysql/${MYSQL_DATABASE} ]; then
 	echo "[i] ${MYSQL_DATABASE} data directory not found, setup DBs"
 	rc-service mariadb start
 	mysql -u root <<EOF
+DROP DATABASE test;
+DELETE FROM mysql.user WHERE User='';
 CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-GRANT all ON *.* TO 'root'@'%';
-CREATE DATABASE ${MYSQL_DATABASE};
-CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-GRANT all ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
+GRANT ALL ON *.* TO 'root'@'%';
+CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
+service mariadb stop
 fi
 
 echo
@@ -26,3 +29,6 @@ echo 'MySQL init process done. Ready for start up.'
 echo
 
 exec /usr/bin/mysqld_safe -u mysql
+
+# select user(); // whoami
+# show grants for root@'localhost';
