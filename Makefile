@@ -2,8 +2,8 @@ YAML		:= srcs/docker-compose.yml
 COMPOSE		:= docker-compose -f $(YAML)
 DF_SRC		:= srcs/requirements
 DATA_PATH	:= srcs/data/
-WORDPRESS	:= $(DATA_PATH)/wordpress/
-DB			:= $(DATA_PATH)/mysql/
+WORDPRESS	:= $(DATA_PATH)wordpress/
+DB			:= $(DATA_PATH)mysql/
 WP_TAR		:= latest-ja.tar.gz
 
 all: $(WORDPRESS) $(DB)
@@ -20,9 +20,9 @@ clean:
 fclean:
 	$(COMPOSE) down --rmi all --volumes
 # docker rmi $(shell docker images -q) -f
-# $(RM) -r $(WORDPRESS) $(WP_TAR)
+	$(RM) -r $(DATA_PATH) $(WP_TAR)
 
-re: fclean all
+re: clean all
 
 #####
 # compose commands
@@ -55,9 +55,11 @@ wp: #$(WORDPRESS)
 $(WP_TAR):
 	curl https://ja.wordpress.org/latest-ja.tar.gz > $@
 
-$(WORDPRESS): $(WP_TAR)
+$(DATA_PATH):
+	mkdir -p $@
+$(DB):
+	mkdir -p $@
+
+$(WORDPRESS): $(WP_TAR) $(DATA_PATH)
 	tar -xzf $< -C $(DATA_PATH)
 	cp $(DF_SRC)/wordpress/wp-config.php $(WORDPRESS)
-
-$(DB):
-	mkdir -p $(DB)
