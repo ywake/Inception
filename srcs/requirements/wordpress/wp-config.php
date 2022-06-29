@@ -81,10 +81,10 @@ $table_prefix = 'wp_';
  *
  * @link https://ja.wordpress.org/support/article/debugging-in-wordpress/
  */
-define( 'WP_DEBUG', true );
+define( 'WP_DEBUG', false );
 
 /* カスタム値は、この行と「編集が必要なのはここまでです」の行の間に追加してください。 */
-define("WP_DEBUG_LOG", "/dev/stdout" );
+// define("WP_DEBUG_LOG", "/dev/stdout" );
 
 
 /* 編集が必要なのはここまでです ! WordPress でのパブリッシングをお楽しみください。 */
