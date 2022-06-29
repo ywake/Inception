@@ -1,6 +1,6 @@
 FROM alpine:3.15
 
-RUN	apk --no-cache --update add nginx openssl
+RUN	apk --no-cache --update add tini nginx openssl
 
 # ssl
 RUN	mkdir /etc/nginx/ssl && cd /etc/nginx/ssl &&\
@@ -12,4 +12,5 @@ RUN	mkdir /etc/nginx/ssl && cd /etc/nginx/ssl &&\
 
 COPY default.conf /etc/nginx/http.d/default.conf
 
+ENTRYPOINT ["tini", "-vvv", "--"]
 CMD [ "nginx", "-g", "daemon off;" ]
