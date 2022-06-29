@@ -7,8 +7,7 @@ services:
     ports:
       - 443:443
     volumes:
-      # - wordpress-volume:/var/www/html
-      - ./data/wordpress:/var/www/html
+      - wordpress-volume:/var/www/html
     depends_on:
       - wordpress
     networks:
@@ -20,8 +19,7 @@ services:
     container_name: wordpress
     build: requirements/wordpress
     volumes:
-      # - wordpress-volume:/var/www/html
-      - ./data/wordpress:/var/www/html
+      - wordpress-volume:/var/www/html
     env_file:
       - .env
     depends_on:
@@ -39,8 +37,7 @@ services:
     env_file:
       - .env
     volumes:
-      # - mariadb-volume:/var/lib/mysql
-      - ./data/mysql:/var/lib/mysql
+      - mariadb-volume:/var/lib/mysql
     networks:
       - database
     restart: always
@@ -55,13 +52,13 @@ volumes:
   mariadb-volume:
     driver_opts:
       type: none
-      device: ./data/mysql
       o: bind
+      device: "${DATA_PATH}/mysql"
   wordpress-volume:
     driver_opts:
       type: none
-      device: ./data/wordpress
       o: bind
+      device: "${DATA_PATH}/wordpress"
 
 networks:
   server:
