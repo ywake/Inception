@@ -4,8 +4,8 @@ include srcs/.env
 # COMPOSE		:= docker-compose -f $(YAML)
 COMPOSE		:= cd srcs/ && docker-compose
 SERVICES	:= srcs/requirements
-WORDPRESS	:= $(DATA_PATH)/wordpress/
-DB			:= $(DATA_PATH)/mysql/
+WORDPRESS	:= $(DATA_PATH)/wordpress
+DB			:= $(DATA_PATH)/mysql
 WP_TAR		:= latest-ja.tar.gz
 HOSTS		:= hosts
 
@@ -32,18 +32,18 @@ re: clean all
 FORCE:
 
 $(DATA_PATH):
-	mkdir -p $@
+	sudo mkdir -p $@
 	sed -i.back "s/localhost/ywake.42.fr/" $(HOSTS)
 
 $(DB): $(DATA_PATH)
-	mkdir -p $@
+	sudo mkdir -p $@
 
 $(WP_TAR):
 	curl https://ja.wordpress.org/latest-ja.tar.gz > $@
 
 $(WORDPRESS): $(WP_TAR) $(DATA_PATH)
 # mkdir -p $@
-	tar -xzf $< -C $(DATA_PATH)
+	sudo tar -xzf $< -C $(DATA_PATH)
 
 #####
 # compose commands
