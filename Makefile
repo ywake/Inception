@@ -7,9 +7,9 @@ SERVICES	:= srcs/requirements
 WORDPRESS	:= $(DATA_PATH)/wordpress
 DB			:= $(DATA_PATH)/mysql
 WP_TAR		:= latest-ja.tar.gz
-HOSTS		:= hosts
+HOSTS		:= /etc/hosts
 
-all: $(WORDPRESS) $(DB)
+all: $(WORDPRESS) $(DB) $(HOSTS).back
 ifdef SERV
 	$(COMPOSE) stop $(SERV)
 	docker rmi -f $(SERV)
@@ -18,12 +18,12 @@ endif
 	$(COMPOSE) up -d
 
 clean: FORCE
-	$(COMPOSE) down --rmi all --volumes
+	$(COMPOSE) down --rmi all --volumes ||:
 
 fclean: clean
 # docker rmi $(shell docker images -q) -f
-	$(RM) -r $(DATA_PATH) $(HOSTS) $(WP_TAR)
-	mv $(HOSTS).back $(HOSTS)
+	sudo $(RM) -r $(DATA_PATH) $(WP_TAR)
+	sudo mv -f $(HOSTS).back $(HOSTS) ||:
 	docker system prune
 
 re: clean all
@@ -31,9 +31,12 @@ re: clean all
 .PHONY: FORCE
 FORCE:
 
+$(HOSTS).back:
+	sudo cp $(HOSTS) $@
+	sudo echo "127.0.0.1 $(DOMAIN_NAME)" >> $(HOSTS) || sudo $(RM) $@
+
 $(DATA_PATH):
 	sudo mkdir -p $@
-	sed -i.back "s/localhost/ywake.42.fr/" $(HOSTS)
 
 $(DB): $(DATA_PATH)
 	sudo mkdir -p $@
@@ -42,7 +45,6 @@ $(WP_TAR):
 	curl https://ja.wordpress.org/latest-ja.tar.gz > $@
 
 $(WORDPRESS): $(WP_TAR) $(DATA_PATH)
-# mkdir -p $@
 	sudo tar -xzf $< -C $(DATA_PATH)
 
 #####
