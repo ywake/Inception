@@ -12,5 +12,5 @@ RUN	mkdir /etc/nginx/ssl && cd /etc/nginx/ssl &&\
 
 COPY default.conf /etc/nginx/http.d/default.conf
 
-ENTRYPOINT ["tini", "-vvv", "--"]
+ENTRYPOINT ["tini", "-vv", "--"]
 CMD [ "nginx", "-g", "daemon off;" ]

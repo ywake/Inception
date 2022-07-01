@@ -23,8 +23,9 @@ services:
     env_file:
       - .env
     depends_on:
-      mariadb:
-        condition: service_healthy
+      - mariadb
+      # mariadb:
+      #   condition: service_healthy
     networks:
       - server
       - database
@@ -41,12 +42,11 @@ services:
     networks:
       - database
     restart: always
-    healthcheck:
-      test: mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e use ${MYSQL_DATABASE}
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 3s
+    # healthcheck:
+    #   test: mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e use ${MYSQL_DATABASE}
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 5
 
 volumes:
   mariadb-volume:

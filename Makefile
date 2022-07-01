@@ -1,10 +1,13 @@
-YAML		:= srcs/docker-compose.yml
-COMPOSE		:= docker-compose -f $(YAML)
-DF_SRC		:= srcs/requirements
-DATA_PATH	:= srcs/data/
-WORDPRESS	:= $(DATA_PATH)wordpress/
-DB			:= $(DATA_PATH)mysql/
+include srcs/.env
+
+# YAML		:= srcs/docker-compose.yml
+# COMPOSE		:= docker-compose -f $(YAML)
+COMPOSE		:= cd srcs/ && docker-compose
+SERVICES	:= srcs/requirements
+WORDPRESS	:= $(DATA_PATH)/wordpress/
+DB			:= $(DATA_PATH)/mysql/
 WP_TAR		:= latest-ja.tar.gz
+HOSTS		:= hosts
 
 all: $(WORDPRESS) $(DB)
 ifdef SERV
@@ -14,15 +17,33 @@ endif
 	$(COMPOSE) build $(SERV)
 	$(COMPOSE) up -d
 
-clean:
+clean: FORCE
 	$(COMPOSE) down --rmi all --volumes
 
-fclean:
-	$(COMPOSE) down --rmi all --volumes
+fclean: clean
 # docker rmi $(shell docker images -q) -f
-	$(RM) -r $(DATA_PATH) $(WP_TAR)
+	$(RM) -r $(DATA_PATH) $(HOSTS) $(WP_TAR)
+	mv $(HOSTS).back $(HOSTS)
+	docker system prune
 
 re: clean all
+
+.PHONY: FORCE
+FORCE:
+
+$(DATA_PATH):
+	mkdir -p $@
+	sed -i.back "s/localhost/ywake.42.fr/" $(HOSTS)
+
+$(DB): $(DATA_PATH)
+	mkdir -p $@
+
+$(WP_TAR):
+	curl https://ja.wordpress.org/latest-ja.tar.gz > $@
+
+$(WORDPRESS): $(WP_TAR) $(DATA_PATH)
+# mkdir -p $@
+	tar -xzf $< -C $(DATA_PATH)
 
 #####
 # compose commands
@@ -44,22 +65,12 @@ cmd:
 # services
 #####
 
-nginx: 
-# docker build -t nginx $(DF_SRC)/nginx
-	docker run -p 8080:80 -p 443:443 nginx
+# nginx: 
+# # docker build -t nginx $(SERVICES)/nginx
+# 	docker run -p 8080:80 -p 443:443 nginx
 
-wp: #$(WORDPRESS)
-	docker build -t wordpress $(DF_SRC)/wordpress
-	docker run -it wordpress sh
+# wp: #$(WORDPRESS)
+# 	docker build -t wordpress $(SERVICES)/wordpress
+# 	docker run -it wordpress sh
 
-$(WP_TAR):
-	curl https://ja.wordpress.org/latest-ja.tar.gz > $@
 
-$(DATA_PATH):
-	mkdir -p $@
-$(DB):
-	mkdir -p $@
-
-$(WORDPRESS): $(WP_TAR) $(DATA_PATH)
-	tar -xzf $< -C $(DATA_PATH)
-	cp $(DF_SRC)/wordpress/wp-config.php $(WORDPRESS)

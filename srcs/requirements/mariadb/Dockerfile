@@ -7,5 +7,5 @@ RUN rc-status && touch /run/openrc/softlevel
 COPY setup.sh /tmp/setup.sh
 COPY mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
 
-ENTRYPOINT ["tini", "-vvv", "--"]
+ENTRYPOINT ["tini", "-vv", "--"]
 CMD [ "sh", "/tmp/setup.sh" ]
