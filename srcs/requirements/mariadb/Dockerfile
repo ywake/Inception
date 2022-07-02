@@ -1,6 +1,5 @@
 FROM alpine:3.15
 
-# RUN apk --no-cache --update add mariadb mariadb-client
 RUN apk --no-cache --update add tini openrc mariadb mariadb-client
 RUN rc-status && touch /run/openrc/softlevel
 

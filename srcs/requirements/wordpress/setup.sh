@@ -11,7 +11,11 @@ until mariadb -h mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD}; do
 	sleep 1
 done
 
-if ! wp core is-installed; then
+i=0
+until wp core is-installed; do
+	if [ $i -gt $retries ]; then
+		exit 1
+	fi
 	echo "[i] wp core config"
 	wp core config  --dbname=$MYSQL_DATABASE \
 					--dbhost=mariadb \
@@ -28,7 +32,16 @@ if ! wp core is-installed; then
 	wp user create  $WP_USER $WP_USER_EMAIL \
 					--user_pass=$WP_USER_PASS \
 					--role=author --allow-root
-fi
+	# echo "[i] install redis plugin"
+	wp plugin install redis-cache --activate
+	wp redis enable
+	wp config set WP_REDIS_HOST redis
+	wp config set WP_REDIS_PASSWORD $REDIS_PASS
+	
+	i=`expr $i + 1`
+	echo retry $i
+	sleep 1
+done
 echo "WordPress is installed!"
 
 exec php-fpm7 --nodaemonize
