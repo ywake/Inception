@@ -1,18 +1,20 @@
 include srcs/.env
 
 # YAML		:= srcs/docker-compose.yml
-# COMPOSE		:= docker-compose -f $(YAML)
+# COMPOSE		:= docker-compose -f $(YAML) --env-file srcs/.env
 COMPOSE		:= cd srcs/ && docker-compose
 SERVICES	:= srcs/requirements
+
+VOLUMES		:= mysql redis
+VOLUMES_DIR	:= $(addprefix $(DATA_PATH)/, $(VOLUMES))
 WORDPRESS	:= $(DATA_PATH)/wordpress
-DB			:= $(DATA_PATH)/mysql
 WP_TAR		:= latest-ja.tar.gz
+
 HOSTS		:= /etc/hosts
 
-all: $(WORDPRESS) $(DB) $(HOSTS).back
+all: $(VOLUMES_DIR) $(HOSTS).back
 ifdef SERV
-	$(COMPOSE) stop $(SERV)
-	docker rmi -f $(SERV)
+	$(COMPOSE) rm $(SERV)
 endif
 	$(COMPOSE) build $(SERV)
 	$(COMPOSE) up -d
@@ -38,14 +40,14 @@ $(HOSTS).back:
 $(DATA_PATH):
 	sudo mkdir -p $@
 
-$(DB): $(DATA_PATH)
-	sudo mkdir -p $@
-
 $(WP_TAR):
 	curl https://ja.wordpress.org/latest-ja.tar.gz > $@
 
 $(WORDPRESS): $(WP_TAR) $(DATA_PATH)
 	sudo tar -xzf $< -C $(DATA_PATH)
+
+$(VOLUMES_DIR): $(DATA_PATH) $(WORDPRESS)
+	sudo mkdir -p $@
 
 #####
 # compose commands

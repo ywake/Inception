@@ -23,12 +23,14 @@ services:
     env_file:
       - .env
     depends_on:
+      - redis
       - mariadb
       # mariadb:
       #   condition: service_healthy
     networks:
       - server
       - database
+      - cache
     restart: always
 
   mariadb:
@@ -48,6 +50,18 @@ services:
     #   timeout: 5s
     #   retries: 5
 
+  redis:
+    image: redis
+    container_name: redis
+    build: requirements/redis
+    volumes:
+      - redis-volume:/data
+    networks:
+      - cache
+    env_file:
+      - .env
+    restart: always
+
 volumes:
   mariadb-volume:
     driver_opts:
@@ -59,9 +73,16 @@ volumes:
       type: none
       o: bind
       device: "${DATA_PATH}/wordpress"
+  redis-volume:
+    driver_opts:
+      type: none
+      o: bind
+      device: "${DATA_PATH}/redis"
 
 networks:
   server:
     driver: bridge
   database:
+    driver: bridge
+  cache:
     driver: bridge
