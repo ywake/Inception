@@ -1,0 +1,15 @@
+{
+	"listeners": {
+		"*:8300": {
+			"pass": "applications/adminer"
+		}
+	},
+	"applications": {
+		"adminer": {
+			"type": "php",
+			"processes": 20,
+			"root": "/var/www/html",
+			"index": "index.php"
+		}
+	}
+}

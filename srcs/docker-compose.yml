@@ -10,8 +10,10 @@ services:
       - wordpress-volume:/var/www/html
     depends_on:
       - wordpress
+      - adminer
     networks:
       - server
+      - manage-mysql
     restart: always
 
   wordpress:
@@ -43,6 +45,7 @@ services:
       - mariadb-volume:/var/lib/mysql
     networks:
       - database
+      - manage-mysql
     restart: always
     # healthcheck:
     #   test: mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e use ${MYSQL_DATABASE}
@@ -61,6 +64,15 @@ services:
     env_file:
       - .env
     restart: always
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    build: requirements/adminer
+    networks:
+      - manage-mysql
+    # ports:
+    #   - "8300:8300"
 
 volumes:
   mariadb-volume:
@@ -85,4 +97,6 @@ networks:
   database:
     driver: bridge
   cache:
+    driver: bridge
+  manage-mysql:
     driver: bridge
