@@ -1,9 +1,13 @@
 version: '3'
 services:
   nginx:
+    restart: always
     image: nginx
     container_name: nginx
     build: requirements/nginx
+    networks:
+      - server
+      - manage-mysql
     ports:
       - 443:443
     volumes:
@@ -11,42 +15,39 @@ services:
     depends_on:
       - wordpress
       - adminer
-    networks:
-      - server
-      - manage-mysql
-    restart: always
 
   wordpress:
+    restart: always
     image: wordpress
     container_name: wordpress
     build: requirements/wordpress
-    volumes:
-      - wordpress-volume:/var/www/html
     env_file:
       - .env
+    networks:
+      - server
+      - database
+      - cache
+    volumes:
+      - wordpress-volume:/var/www/html
     depends_on:
       - redis
       - mariadb
       # mariadb:
       #   condition: service_healthy
-    networks:
-      - server
-      - database
-      - cache
-    restart: always
+
 
   mariadb:
+    restart: always
     image: mariadb
     container_name: mariadb
     build: requirements/mariadb
     env_file:
       - .env
-    volumes:
-      - mariadb-volume:/var/lib/mysql
     networks:
       - database
       - manage-mysql
-    restart: always
+    volumes:
+      - mariadb-volume:/var/lib/mysql
     # healthcheck:
     #   test: mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e use ${MYSQL_DATABASE}
     #   interval: 5s
@@ -54,25 +55,25 @@ services:
     #   retries: 5
 
   redis:
+    restart: always
     image: redis
     container_name: redis
     build: requirements/redis
-    volumes:
-      - redis-volume:/data
-    networks:
-      - cache
     env_file:
       - .env
-    restart: always
+    networks:
+      - cache
+    volumes:
+      - redis-volume:/data
 
   adminer:
+    restart: always
     image: adminer
     container_name: adminer
     build: requirements/adminer
     networks:
       - manage-mysql
-    # ports:
-    #   - "8300:8300"
+
 
 volumes:
   mariadb-volume:
