@@ -13,19 +13,19 @@ WP_TAR		:= latest-ja.tar.gz
 HOSTS		:= /etc/hosts
 
 all: $(VOLUMES_DIR) $(HOSTS).back
-ifdef SERV
-	$(COMPOSE) rm $(SERV)
-endif
+# ifdef SERV
+# 	$(COMPOSE) rm $(SERV)
+# endif
 	$(COMPOSE) build $(SERV)
 	$(COMPOSE) up -d
 
 clean: FORCE
-	$(COMPOSE) down --rmi all --volumes ||:
+	-$(COMPOSE) down --rmi all --volumes
 
 fclean: clean
 # docker rmi $(shell docker images -q) -f
 	sudo $(RM) -r $(DATA_PATH) $(WP_TAR)
-	sudo mv -f $(HOSTS).back $(HOSTS) ||:
+	-sudo mv -f $(HOSTS).back $(HOSTS)
 	docker system prune
 
 re: clean all
@@ -35,7 +35,7 @@ FORCE:
 
 $(HOSTS).back:
 	sudo cp $(HOSTS) $@
-	sudo echo "127.0.0.1 $(DOMAIN_NAME)" >> $(HOSTS) || sudo $(RM) $@
+	echo '127.0.0.1 $(DOMAIN_NAME)' | sudo tee -a $(HOSTS) || sudo $(RM) $@
 
 $(DATA_PATH):
 	sudo mkdir -p $@

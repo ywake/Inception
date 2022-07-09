@@ -74,6 +74,15 @@ services:
     networks:
       - manage-mysql
 
+  mosquitto:
+    restart: always
+    image: mosquitto
+    container_name: mosquitto
+    build: requirements/mosquitto
+    networks:
+      - mqtt
+    # ports:
+    #   - 1883:1883
 
 volumes:
   mariadb-volume:
@@ -100,4 +109,6 @@ networks:
   cache:
     driver: bridge
   manage-mysql:
+    driver: bridge
+  mqtt:
     driver: bridge
