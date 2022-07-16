@@ -12,6 +12,7 @@ services:
       - 443:443
     volumes:
       - wordpress-volume:/var/www/html
+      - certs-volume:/etc/nginx/ssl
     depends_on:
       - wordpress
       - adminer
@@ -81,8 +82,21 @@ services:
     build: requirements/mosquitto
     networks:
       - mqtt
-    # ports:
-    #   - 1883:1883
+    volumes:
+      - certs-volume:/certs
+    ports:
+      - 1883:1883
+      - 9000:9000
+
+  mysite:
+    restart: always
+    image: mysite
+    container_name: mysite
+    build: requirements/mysite
+    volumes:
+      - mysite-volume:/var/www/html
+    networks:
+      - mqtt
 
 volumes:
   mariadb-volume:
@@ -100,6 +114,16 @@ volumes:
       type: none
       o: bind
       device: "${DATA_PATH}/redis"
+  mysite-volume:
+    driver_opts:
+      type: none
+      o: bind
+      device: "requirements/mysite/site_data"
+  certs-volume:
+    driver_opts:
+      type: none
+      o: bind
+      device: "${DATA_PATH}/certs"
 
 networks:
   server:

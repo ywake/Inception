@@ -5,14 +5,17 @@ include srcs/.env
 COMPOSE		:= cd srcs/ && docker-compose
 SERVICES	:= srcs/requirements
 
-VOLUMES		:= mysql redis
+VOLUMES		:= mysql redis certs
 VOLUMES_DIR	:= $(addprefix $(DATA_PATH)/, $(VOLUMES))
 WORDPRESS	:= $(DATA_PATH)/wordpress
 WP_TAR		:= latest-ja.tar.gz
+CERT_FILE	:= $(DATA_PATH)/certs/server.crt
+CERT_KEY	:= $(DATA_PATH)/certs/server.key
 
 HOSTS		:= /etc/hosts
+HOSTS_BACKUP:= /etc/hosts.back
 
-all: $(VOLUMES_DIR) $(HOSTS).back
+all: $(VOLUMES_DIR) $(HOSTS_BACKUP)
 # ifdef SERV
 # 	$(COMPOSE) rm $(SERV)
 # endif
@@ -24,7 +27,7 @@ clean: FORCE
 
 fclean: clean
 # docker rmi $(shell docker images -q) -f
-	sudo $(RM) -r $(DATA_PATH) $(WP_TAR)
+	$(RM) -r $(DATA_PATH) $(WP_TAR)
 	-sudo mv -f $(HOSTS).back $(HOSTS)
 	docker system prune
 
@@ -33,21 +36,28 @@ re: clean all
 .PHONY: FORCE
 FORCE:
 
-$(HOSTS).back:
+$(HOSTS_BACKUP):
 	sudo cp $(HOSTS) $@
 	echo '127.0.0.1 $(DOMAIN_NAME)' | sudo tee -a $(HOSTS) || sudo $(RM) $@
 
 $(DATA_PATH):
-	sudo mkdir -p $@
+	mkdir -p $@
 
 $(WP_TAR):
 	curl https://ja.wordpress.org/latest-ja.tar.gz > $@
 
 $(WORDPRESS): $(WP_TAR) $(DATA_PATH)
-	sudo tar -xzf $< -C $(DATA_PATH)
+	tar -xzf $< -C $(DATA_PATH)
 
-$(VOLUMES_DIR): $(DATA_PATH) $(WORDPRESS)
-	sudo mkdir -p $@
+$(CERT_KEY):
+	openssl genrsa -out $(CERT_KEY) 2048
+
+$(CERT_FILE):
+	openssl req -new -key $(CERT_KEY) -out $(DATA_PATH)/certs/server.csr -subj "/C=JP/ST=Tokyo/L=Tokyo/O=ywake/OU=Web" &&\
+	openssl x509 -in $(DATA_PATH)/certs/server.csr -days 3650 -req -signkey $(CERT_KEY) > $(CERT_FILE)
+
+$(VOLUMES_DIR): $(DATA_PATH) $(WORDPRESS) $(CERT_KEY) $(CERT_FILE)
+	mkdir -p $@
 
 #####
 # compose commands
