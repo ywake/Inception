@@ -8,6 +8,7 @@ services:
     networks:
       - server
       - manage-mysql
+      - static-website
     ports:
       - 443:443
     volumes:
@@ -80,8 +81,6 @@ services:
     image: mosquitto
     container_name: mosquitto
     build: requirements/mosquitto
-    networks:
-      - mqtt
     volumes:
       - certs-volume:/certs
     ports:
@@ -96,7 +95,7 @@ services:
     volumes:
       - mysite-volume:/var/www/html
     networks:
-      - mqtt
+      - static-website
 
 volumes:
   mariadb-volume:
@@ -134,5 +133,5 @@ networks:
     driver: bridge
   manage-mysql:
     driver: bridge
-  mqtt:
+  static-website:
     driver: bridge

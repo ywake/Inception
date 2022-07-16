@@ -15,10 +15,7 @@ CERT_KEY	:= $(DATA_PATH)/certs/server.key
 HOSTS		:= /etc/hosts
 HOSTS_BACKUP:= /etc/hosts.back
 
-all: $(VOLUMES_DIR) $(HOSTS_BACKUP)
-# ifdef SERV
-# 	$(COMPOSE) rm $(SERV)
-# endif
+all: $(VOLUMES_DIR) $(HOSTS_BACKUP) $(CERT_KEY) $(CERT_FILE)
 	$(COMPOSE) build $(SERV)
 	$(COMPOSE) up -d
 
@@ -56,7 +53,7 @@ $(CERT_FILE):
 	openssl req -new -key $(CERT_KEY) -out $(DATA_PATH)/certs/server.csr -subj "/C=JP/ST=Tokyo/L=Tokyo/O=ywake/OU=Web" &&\
 	openssl x509 -in $(DATA_PATH)/certs/server.csr -days 3650 -req -signkey $(CERT_KEY) > $(CERT_FILE)
 
-$(VOLUMES_DIR): $(DATA_PATH) $(WORDPRESS) $(CERT_KEY) $(CERT_FILE)
+$(VOLUMES_DIR): $(DATA_PATH) $(WORDPRESS)
 	mkdir -p $@
 
 #####
