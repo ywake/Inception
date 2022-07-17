@@ -2,9 +2,8 @@ FROM alpine:3.15
 
 RUN apk --no-cache --update add tini redis
 
-RUN mkdir -p /data &&\
-	chown -R redis:redis /data
-COPY redis.conf /etc/redis.conf
+RUN chown -R redis:redis /var/lib/redis
+COPY redis.conf /etc/redis/redis.conf
 COPY run.sh /tmp/run.sh
 
 ENTRYPOINT ["tini", "-vv", "--"]
