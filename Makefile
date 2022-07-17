@@ -71,17 +71,3 @@ log:
 
 cmd:
 	$(COMPOSE) $(CMD)
-
-#####
-# services
-#####
-
-# nginx: 
-# # docker build -t nginx $(SERVICES)/nginx
-# 	docker run -p 8080:80 -p 443:443 nginx
-
-# wp: #$(WORDPRESS)
-# 	docker build -t wordpress $(SERVICES)/wordpress
-# 	docker run -it wordpress sh
-
-

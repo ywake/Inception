@@ -76,6 +76,17 @@ services:
     networks:
       - manage-mysql
 
+  vsftpd:
+    restart: always
+    image: vsftpd
+    container_name: vsftpd
+    build: requirements/vsftpd
+    volumes:
+      - wordpress-volume:/data
+    ports:
+      - 20:20
+      - 2121:2121
+
   mosquitto:
     restart: always
     image: mosquitto
