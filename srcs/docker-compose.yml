@@ -82,9 +82,9 @@ services:
     container_name: vsftpd
     build: requirements/vsftpd
     volumes:
-      - wordpress-volume:/data
+      - wordpress-volume:/home/ftp-user
     ports:
-      - 20:20
+      - 2020:2020
       - 2121:2121
 
   mosquitto:

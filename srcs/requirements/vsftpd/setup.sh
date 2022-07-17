@@ -1,10 +1,10 @@
 #!/bin/sh
 
-adduser wordpress <<EOF
+adduser ftp-user <<EOF
 password
 password
 EOF
 
-echo "wordpress" >> /etc/vsftpd.user_list
+echo "ftp-user" >> /etc/vsftpd.user_list
 
-exec vsftpd /etc/vsftpd/vsftpd.conf
+exec vsftpd
