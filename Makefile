@@ -15,16 +15,21 @@ CERT_KEY	:= $(DATA_PATH)/certs/server.key
 HOSTS		:= /etc/hosts
 HOSTS_BACKUP:= /etc/hosts.back
 
-all: $(VOLUMES_DIR) $(HOSTS_BACKUP) $(CERT_KEY) $(CERT_FILE)
+MY_SITE_DATA:= $(DATA_PATH)/mysite/site_data
+
+all: $(VOLUMES_DIR) $(HOSTS_BACKUP) $(CERT_FILE) $(MY_SITE_DATA)
 	$(COMPOSE) build $(SERV)
 	$(COMPOSE) up -d
 
 clean: FORCE
 	-$(COMPOSE) down --rmi all --volumes
 
-fclean: clean
+clean_data: FORCE
+	$(RM) -r $(DATA_PATH)
+
+fclean: clean clean_data
 # docker rmi $(shell docker images -q) -f
-	$(RM) -r $(DATA_PATH) $(WP_TAR)
+	$(RM) $(WP_TAR)
 	-sudo mv -f $(HOSTS).back $(HOSTS)
 	docker system prune
 
@@ -49,12 +54,16 @@ $(WORDPRESS): $(WP_TAR) $(DATA_PATH)
 $(CERT_KEY):
 	openssl genrsa -out $(CERT_KEY) 2048
 
-$(CERT_FILE):
+$(CERT_FILE): $(CERT_KEY)
 	openssl req -new -key $(CERT_KEY) -out $(DATA_PATH)/certs/server.csr -subj "/C=JP/ST=Tokyo/L=Tokyo/O=ywake/OU=Web" &&\
 	openssl x509 -in $(DATA_PATH)/certs/server.csr -days 3650 -req -signkey $(CERT_KEY) > $(CERT_FILE)
 
 $(VOLUMES_DIR): $(DATA_PATH) $(WORDPRESS)
 	mkdir -p $@
+
+$(MY_SITE_DATA):
+	mkdir -p $@
+	cp -r $(SERVICES)/mysite/ $@
 
 #####
 # compose commands
