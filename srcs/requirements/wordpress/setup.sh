@@ -1,14 +1,14 @@
 #!/bin/sh
 
 retries=10
-i=0
+i=1
 until mariadb -h mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD}; do
 	if [ $i -gt $retries ]; then
 		exit 1
 	fi
-	i=`expr $i + 1`
 	echo retry $i
 	sleep 1
+	i=`expr $i + 1`
 done
 
 i=0

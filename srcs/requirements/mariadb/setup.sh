@@ -14,9 +14,6 @@ if [ ! -d /var/lib/mysql/${MYSQL_DATABASE} ]; then
 	mysql -u root <<EOF
 DROP DATABASE test;
 DELETE FROM mysql.user WHERE User='';
-DELETE FROM mysql.user WHERE User='root';
-CREATE USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-GRANT ALL ON *.* TO 'root'@'localhost';
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
