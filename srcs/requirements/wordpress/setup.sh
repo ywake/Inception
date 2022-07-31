@@ -33,10 +33,10 @@ until wp core is-installed; do
 					--user_pass=$WP_USER_PASS \
 					--role=author --allow-root
 	# echo "[i] install redis plugin"
-	wp plugin install redis-cache --activate
-	wp redis enable
 	wp config set WP_REDIS_HOST redis
 	wp config set WP_REDIS_PASSWORD $REDIS_PASS
+	wp plugin install redis-cache --activate
+	wp redis enable
 	
 	i=`expr $i + 1`
 	echo retry $i
