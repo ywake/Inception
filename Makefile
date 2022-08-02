@@ -63,7 +63,8 @@ $(VOLUMES_DIR): $(DATA_PATH) $(WORDPRESS)
 
 $(MY_SITE_DATA):
 	mkdir -p $@
-	cp -r $(SERVICES)/mysite/ $@
+	cp -r $(SERVICES)/mysite/site_data/* $@
+	chmod -R 777 $@
 
 #####
 # compose commands
