@@ -15,7 +15,7 @@ CERT_KEY	:= $(DATA_PATH)/certs/server.key
 HOSTS		:= /etc/hosts
 HOSTS_BACKUP:= /etc/hosts.back
 
-MY_SITE_DATA:= $(DATA_PATH)/mysite/site_data
+MY_SITE_DATA:= $(DATA_PATH)/mysite
 
 all: $(VOLUMES_DIR) $(HOSTS_BACKUP) $(CERT_FILE) $(MY_SITE_DATA)
 	$(COMPOSE) build $(SERV)
@@ -53,6 +53,7 @@ $(WORDPRESS): $(WP_TAR) $(DATA_PATH)
 
 $(CERT_KEY):
 	openssl genrsa -out $(CERT_KEY) 2048
+	chmod 644 $(CERT_KEY)
 
 $(CERT_FILE): $(CERT_KEY)
 	openssl req -new -key $(CERT_KEY) -out $(DATA_PATH)/certs/server.csr -subj "/C=JP/ST=Tokyo/L=Tokyo/O=ywake/OU=Web" &&\

@@ -97,6 +97,8 @@ services:
     ports:
       - 1883:1883
       - 9000:9000
+    networks:
+      - static-website
 
   mysite:
     restart: always
@@ -128,7 +130,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: "${DATA_PATH}/mysite/site_data"
+      device: "${DATA_PATH}/mysite"
   certs-volume:
     driver_opts:
       type: none

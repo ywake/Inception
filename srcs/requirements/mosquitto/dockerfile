@@ -2,8 +2,8 @@ FROM alpine:3.15
 
 RUN apk add --no-cache --update tini mosquitto mosquitto-libs mosquitto-clients
 
-COPY mosquitto.conf /tmp/
+COPY mosquitto.conf /tmp/mosquitto.conf
+RUN chmod 777 /tmp/mosquitto.conf
 
 ENTRYPOINT ["tini", "-vv", "--"]
-# CMD [ "tail", "-f" ]
 CMD [ "mosquitto", "-c", "/tmp/mosquitto.conf", "-v" ]
